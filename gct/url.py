@@ -5,7 +5,7 @@ import urllib.request
 def fetch_valid_url(url: str):
     """Make sure valid URL. Parses github URLs to raw githubusercontent URLs."""
     status = {"valid": False, "url": None}
-    if url is None or len(url.strip()) == 0 or not url.startswith("http"):
+    if url is None or not url.strip() or not url.startswith("http"):
         return status
 
     # Handle github raw URL.
@@ -24,13 +24,9 @@ def fetch_valid_url(url: str):
         # Convert to raw githubusercontent URL.
         url = url.replace("github.com", "raw.githubusercontent.com")
         url = url.replace("/blob/", "/")
-        status["valid"] = try_open_url(url)
-        status["url"] = url
-        return status
-    else:
-        status["valid"] = try_open_url(url)
-        status["url"] = url
-        return status
+    status["valid"] = try_open_url(url)
+    status["url"] = url
+    return status
 
 
 def try_open_url(url: str):

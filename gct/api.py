@@ -58,9 +58,7 @@ def run(resource_name: str) -> "list[graphviz.Digraph, str]":
     g = graphviz.Digraph("G", filename=f"{TEMP_FOLDER}/graph", engine="dot")
     g.attr(compound="true", rankdir="LR", ranksep="1.0")
 
-    # Create visual graph representation
-    root = node_representation.get_root_node()
-    if root:
+    if root := node_representation.get_root_node():
         utils.add_subgraphs(node_representation, g, root)
 
         # create edges

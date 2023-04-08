@@ -60,9 +60,7 @@ def helper_search_definition(tree, variable_name):
                         if isinstance(el, ast.Name) and el.id == variable_name:
                             return node
 
-        # Recursively search for the definition in child nodes
-        definition = helper_search_definition(node, variable_name)
-        if definition:
+        if definition := helper_search_definition(node, variable_name):
             return definition
     return None
 
@@ -87,13 +85,12 @@ def search_for_definition(tree: ast, name: str) -> list:
         if isinstance(result.value, ast.Call):
             if isinstance(result.value.func, ast.Attribute):
                 potential_target_nodes.append(result.value.func.attr)
-            else:
-                if isinstance(result.value.func, ast.Name):
-                    potential_target_nodes.append(result.value.func.id)
-                elif isinstance(
-                    result.value.func, ast.Subscript
-                ):  # BUG: this is a hacky fix for the case where the function is a subscript
-                    potential_target_nodes.append(result.value.func.value.id)
+            elif isinstance(result.value.func, ast.Name):
+                potential_target_nodes.append(result.value.func.id)
+            elif isinstance(
+                result.value.func, ast.Subscript
+            ):  # BUG: this is a hacky fix for the case where the function is a subscript
+                potential_target_nodes.append(result.value.func.value.id)
         elif isinstance(result.value, ast.Tuple):
             for node in result.value.elts:
                 if isinstance(node, ast.Call):
@@ -189,10 +186,9 @@ def find_nodes_by_name(target_node_name: str, nodes: "list[Node]") -> "list[Node
     2. nodes: list[Node] = list of nodes to search through.
     @Returns: list of nodes with the given `target_node_name`.
     """
-    potential_target_nodes: "list[Node]" = []
-    for node in nodes:
-        if node.name == target_node_name:
-            potential_target_nodes.append(node)
+    potential_target_nodes: "list[Node]" = [
+        node for node in nodes if node.name == target_node_name
+    ]
     return potential_target_nodes
 
 

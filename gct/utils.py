@@ -18,7 +18,7 @@ def save_code_to_file(code: str, resource: str):
     if "/" in resource:
         resource = resource.split("/")[-1]
     if not resource.endswith(".py"):
-        resource = resource + ".py"
+        resource = f"{resource}.py"
     with open(f"{constants.TEMP_FOLDER}/{resource}", "w") as f:
         f.write(code)
 
@@ -36,7 +36,7 @@ def flush(path: str):
                 elif os.path.isdir(file_path):
                     shutil.rmtree(file_path)
             except Exception as e:
-                print("Failed to delete %s. Reason: %s" % (file_path, e))
+                print(f"Failed to delete {file_path}. Reason: {e}")
 
 
 def parse_file(resource: str):
@@ -110,9 +110,7 @@ def is_call_node_in_function_of_interest(
 
 
 def is_line_function_or_class(line: str):
-    if line.lstrip().split(" ")[0] == "def" or line.lstrip().split(" ")[0] == "class":
-        return True
-    return False
+    return line.lstrip().split(" ")[0] in ["def", "class"]
 
 
 def get_immediate_parent(lines: "list[str]", lineno: int, call_node_name: str = None):
@@ -193,26 +191,20 @@ def find_function_of_interest(name: str, metadata: type_check.Metadata) -> "list
 
     potential_target_nodes: "list[Node]" = []
 
-    if prefix:
-        if prefix == constants.SELF_NODE_NAME:
-            # get 2nd level parent node
-            bilevel_parent_lineno = get_immediate_parent(
-                metadata.raw_code, metadata.parent_lineno, name
-            )
-            # get node name at bilevel parent node line number
-            if bilevel_parent_lineno != constants.ROOT_NODE_LINENO:
-                bilevel_parent_node = metadata.node_line_map[bilevel_parent_lineno]
-                prefix = bilevel_parent_node.name
+    if not prefix:
+        return type_check.infer_direct_mappings(metadata.node_line_map, suffix)
 
-        potential_target_nodes = type_check.infer_complex_mappings(
-            prefix, suffix, metadata
+    if prefix == constants.SELF_NODE_NAME:
+        # get 2nd level parent node
+        bilevel_parent_lineno = get_immediate_parent(
+            metadata.raw_code, metadata.parent_lineno, name
         )
-    else:
-        potential_target_nodes = type_check.infer_direct_mappings(
-            metadata.node_line_map, suffix
-        )
+        # get node name at bilevel parent node line number
+        if bilevel_parent_lineno != constants.ROOT_NODE_LINENO:
+            bilevel_parent_node = metadata.node_line_map[bilevel_parent_lineno]
+            prefix = bilevel_parent_node.name
 
-    return potential_target_nodes
+    return type_check.infer_complex_mappings(prefix, suffix, metadata)
 
 
 def add_subgraphs(

@@ -41,10 +41,7 @@ def main():
 
     # Download file if URL is valid
     status = fetch_valid_url(args.input)
-    path = status["url"]
-    if not status["valid"]:
-        path = args.input
-
+    path = status["url"] if status["valid"] else args.input
     graph, _ = api.run(path)
 
     api.render(
