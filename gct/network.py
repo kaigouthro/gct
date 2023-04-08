@@ -36,9 +36,7 @@ class Graph:
         return list(self.G.nodes)
 
     def get_root_node(self) -> Node:
-        if not self.get_all_nodes():
-            return None
-        return self.get_all_nodes()[0]
+        return self.get_all_nodes()[0] if self.get_all_nodes() else None
 
     def get_parent_node(self, node: Node) -> Node:
         """
