@@ -41,7 +41,6 @@ class UserDefinedFuncVisitor(ast.NodeVisitor):
 
     def visit_Lambda(self, node: ast.Lambda):
         raise NotImplementedError("Lambda functions are not supported yet")
-        self.create_node(node, "lambda", "function")
 
     def visit_FunctionDef(self, node: ast.FunctionDef):
         self.create_node(node, node.name, "function")
